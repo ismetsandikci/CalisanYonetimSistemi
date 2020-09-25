@@ -15,16 +15,17 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 calisanId = session.getAttribute("calisanId").toString();
 String duzKisiID = calisanId;
-//System.out.println("duzKisiID" + duzKisiID);
+System.out.println("duzKisiID" + duzKisiID);
+
 String duzenlenecekKisi_ad = "";
 String duzenlenecekKisi_soyad = "";
 String duzenlenecekKisi_eposta = "";
 String duzenlenecekKisi_sifre = "";
 String duzenlenecekKisi_telefon = "";
+String duzenlenecekKisi_iseGirisTarihilk = "";
 String duzenlenecekKisi_iseGirisTarih = "";
 String duzenlenecekKisi_maas = "";
 int duzenlenecekKisi_departmanId = 0;
@@ -34,15 +35,16 @@ int duzenlenecekKisi_yoneticiId = 0;
 String duzenlenecekKisi_yoneticiAd = "";
 String duzenlenecekKisi_yoneticiSoyad = "";
 
+String kullaniciyaMesaj = "";
+
 try {
 	//database bağlantısı için çağırdık
 	dbBaglanti connec = new dbBaglanti();
 	Statement stmt = connec.getCon().createStatement();
 
-	
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
+	kullaniciyaMesaj = session.getAttribute("kullaniciyaMesaj").toString();
+	session.setAttribute("kullaniciyaMesaj", "");
 
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -54,13 +56,17 @@ try {
 	//düzenlenecek kişinin bilgilerini getiriyorum
 	ResultSet rs2 = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + duzKisiID + "' ;");
 	if (rs2.next()) {
-
 		duzenlenecekKisi_ad = rs2.getString("calisanad");
 		duzenlenecekKisi_soyad = rs2.getString("calisansoyad");
 		duzenlenecekKisi_eposta = rs2.getString("calisaneposta");
 		duzenlenecekKisi_sifre = rs2.getString("calisansifre");
 		duzenlenecekKisi_telefon = rs2.getString("calisantelefon");
-		duzenlenecekKisi_iseGirisTarih = rs2.getString("calisanisegiristarihi");
+
+		duzenlenecekKisi_iseGirisTarihilk = rs2.getString("calisanisegiristarihi");
+		duzenlenecekKisi_iseGirisTarihilk = duzenlenecekKisi_iseGirisTarihilk.replace("-", "/");
+		String tarih[] = duzenlenecekKisi_iseGirisTarihilk.split("/");
+		duzenlenecekKisi_iseGirisTarih = tarih[1] + "/" + tarih[2] + "/" + tarih[0];
+
 		duzenlenecekKisi_maas = rs2.getString("calisanmaas");
 		duzenlenecekKisi_departmanId = rs2.getInt("calisandepartmanid");
 		duzenlenecekKisi_unvan = rs2.getString("calisanunvan");
@@ -71,6 +77,8 @@ try {
 		if (rs3.next()) {
 			duzenlenecekKisi_departmanAdi = rs3.getString("departmanadi");
 			duzenlenecekKisi_yoneticiId = rs3.getInt("departmanyoneticiid");
+		} else {
+			System.out.print("rs3 hata\n");
 		}
 		rs3.close();
 
@@ -79,10 +87,16 @@ try {
 		if (rs4.next()) {
 			duzenlenecekKisi_yoneticiAd = rs4.getString("calisanad");
 			duzenlenecekKisi_yoneticiSoyad = rs4.getString("calisansoyad");
+		} else {
+			System.out.print("rs4 hata\n");
 		}
 		rs4.close();
+		rs2.close();
+	}else {
+		System.out.print("Veriler getirilemedi\n");
+		
 	}
-	rs2.close();
+	
 	rs.close();
 		}
 	} else {
@@ -90,7 +104,7 @@ try {
 		response.sendRedirect("index.jsp");
 	}
 } catch (Exception a) {
-	System.err.println("DB Bağlantı Hatası ! ");
+	System.err.println("DB Bağlantı Hatası ! profil ilk yükleme");
 	System.err.println(a.getMessage());
 }
 %>
@@ -238,15 +252,14 @@ try {
 				<!-- sidebar menu: : style can be found in sidebar.less -->
 				<ul class="sidebar-menu" data-widget="tree">
 					<li class="header"></li>
-					<li class="treeview"><a href="#"> <i
-							class="fa fa-user"></i> <span>Çalışanlar</span> <span
-							class="pull-right-container"> <i
-								class="fa fa-angle-left pull-right"></i>
+					<li class="treeview"><a href="#"> <i class="fa fa-user"></i>
+							<span>Çalışanlar</span> <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
 						<ul class="treeview-menu">
-							<li><a href="calisanListe.jsp"><i
-									class="fa fa-users"></i> Çalışan Listesi</a></li>
+							<li><a href="calisanListe.jsp"><i class="fa fa-users"></i>
+									Çalışan Listesi</a></li>
 							<li><a href="calisanEkle.jsp"><i class="fa fa-user-plus"></i>
 									Çalışan Ekle</a></li>
 						</ul></li>
@@ -294,18 +307,39 @@ try {
 					<div class="col-md-6">
 						<!-- general form elements -->
 						<div class="box box-primary">
+							<%
+								if ((kullaniciyaMesaj != "") || (kullaniciyaMesaj == null)) {
+								if (kullaniciyaMesaj.equals("Profil Güncellendi.")) {
+									out.print("<div class='alert alert-success alert-dismissible'>");
+									out.print("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>");
+									out.print("<h4><i class='icon fa fa-check'></i>" + kullaniciyaMesaj + "</h4>");
+									//out.print("Success alert preview. This alert is dismissable.");
+									out.print("</div>");
+
+								} else if (kullaniciyaMesaj.equals("")) {
+
+								} else if (kullaniciyaMesaj.equals("Profil Güncellenemedi.")) {
+									out.print("<div class='alert alert-danger alert-dismissible'>");
+									out.print("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button>");
+									out.print("<h4><i class='icon fa fa-check'></i>" + kullaniciyaMesaj + "</h4>");
+									//out.print("Success alert preview. This alert is dismissable.");
+									out.print("</div>");
+								}
+								session.setAttribute("kullaniciyaMesaj", "");
+							}
+							%>
 							<!-- form start -->
 							<form role="form" action="profil.jsp" method="post"
 								id="profilGuncelleForm" name="profilGuncelleForm">
 								<div class="box-body">
 									<div class="form-group">
 										<label>Ad</label> <input type="text" class="form-control"
-											id="ad" name="ad" placeholder="Ad"
+											id="ad" name="ad" placeholder="Ad" maxlength="25"
 											value="<%out.println(duzenlenecekKisi_ad);%>">
 									</div>
 									<div class="form-group">
 										<label>Soyad</label> <input type="text" class="form-control"
-											id="soyad" name="soyad" placeholder="Soyad"
+											id="soyad" name="soyad" placeholder="Soyad" maxlength="25"
 											value="<%out.println(duzenlenecekKisi_soyad);%>">
 									</div>
 									<div class="form-group">
@@ -317,35 +351,32 @@ try {
 									<div class="form-group">
 										<label for="exampleInputEmail1">Şifre</label> <input
 											type="text" class="form-control" id="sifre" name="sifre"
-											placeholder="Sifre"
+											maxlength="5" placeholder="Sifre"
 											value="<%out.println(duzenlenecekKisi_sifre);%>">
 									</div>
 									<div class="form-group">
 										<label>Telefon</label> <input type="text" class="form-control"
-											id="telefon" name="telefon" placeholder="Telefon"
+											id="telefon" name="telefon" pattern="[0-9]{11}"
+											maxlength="11" placeholder="Telefon" required="required"
 											value="<%out.println(duzenlenecekKisi_telefon);%>">
 									</div>
 									<div class="form-group">
 										<label>İşe Giriş Tarihi:</label>
+
 										<div class="input-group date">
 											<div class="input-group-addon">
 												<i class="fa fa-calendar"></i>
 											</div>
 											<input type="text" class="form-control pull-right"
-												id="iseGirisTarih" name="iseGirisTarih"
-												<%
-											if(duzenlenecekKisi_yoneticiId!=Integer.parseInt(calisanId)){
-												out.println("disabled=''");
-											}
-											%>
+												id="datepicker" name="datepicker" disabled=''
+												
 												value="<%out.println(duzenlenecekKisi_iseGirisTarih);%>">
 										</div>
 										<!-- /.input group -->
 									</div>
 									<div class="form-group">
 										<label>Maaş</label> <input type="text" class="form-control"
-											id="maas" name="maas" placeholder="Maaş" 
-											<%
+											id="maas" name="maas" placeholder="Maaş" maxlength="15" <%
 											if(duzenlenecekKisi_yoneticiId!=Integer.parseInt(calisanId)){
 												out.println("disabled=''");
 											}
@@ -353,14 +384,14 @@ try {
 											value="<%out.println(duzenlenecekKisi_maas);%>">
 									</div>
 									<div class="form-group">
-										<label>Departman</label> <select id="departman" name="departman"
-											class="form-control select2 select2-hidden-accessible" 
-											<%
+										<label>Departman</label> <select
+											class="form-control select2 select2-hidden-accessible"
+											id="departman" name="departman" style="width: 100%;"
+											tabindex="-1" aria-hidden="true" <%
 											if(duzenlenecekKisi_yoneticiId!=Integer.parseInt(calisanId)){
 												out.println("disabled=''");
 											}
-											%>
-											style="width: 100%;" tabindex="-1" aria-hidden="true">
+											%>>
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
@@ -372,12 +403,12 @@ try {
 												if (calisanId != null) {
 													ResultSet rs11 = stmt.executeQuery("SELECT * FROM departman;");
 													while (rs11.next()) {
-												//System.out.println("duzenlenecekKisi_departmanAdi: " + duzenlenecekKisi_departmanAdi);
-												//System.out.println("departmanadi: " + rs11.getString("departmanadi"));
 												if (duzenlenecekKisi_departmanAdi.equals(rs11.getString("departmanadi"))) {
-													out.println("<option selected='selected'>'" + rs11.getString("departmanadi") + "'</option>");
+													out.println("<option value='" + rs11.getString("departmanid") + ".//." + rs11.getString("departmanadi")
+															+ "' selected='selected'>'" + rs11.getString("departmanadi") + "'</option>");
 												} else {
-													out.println("<option>'" + rs11.getString("departmanadi") + "'</option>");
+													out.println("<option value='" + rs11.getString("departmanid") + ".//." + rs11.getString("departmanadi")
+															+ "' >'" + rs11.getString("departmanadi") + "'</option>");
 												}
 													}
 													rs11.close();
@@ -386,7 +417,7 @@ try {
 													response.sendRedirect("index.jsp");
 												}
 											} catch (Exception a) {
-												System.err.println("DB Bağlantı Hatası! ünvan");
+												System.err.println("DB Bağlantı Hatası! departman");
 												System.err.println(a.getMessage());
 											}
 											%>
@@ -394,55 +425,12 @@ try {
 									</div>
 									<div class="form-group">
 										<label>Ünvan</label> <input type="text" class="form-control"
-											id="unvan" placeholder="Ünvan"
-											<%
+											maxlength="50" id="unvan" name="unvan" placeholder="Ünvan"<%
 											if(duzenlenecekKisi_yoneticiId!=Integer.parseInt(calisanId)){
 												out.println("disabled=''");
 											}
 											%>
 											value="<%out.println(duzenlenecekKisi_unvan);%>">
-									</div>
-									<div class="form-group">
-										<label>Yönetici</label> <select
-											class="form-control select2 select2-hidden-accessible"
-											<%
-											if(duzenlenecekKisi_yoneticiId!=Integer.parseInt(calisanId)){
-												out.println("disabled=''");
-											}
-											%>
-											style="width: 100%;" tabindex="-1" aria-hidden="true">
-											<%
-												request.setCharacterEncoding("UTF-8");
-											try {
-												//database bağlantısı için çağırdık
-												dbBaglanti connec = new dbBaglanti();
-												Statement stmt = connec.getCon().createStatement();
-
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
-												if (calisanId != null) {
-													ResultSet rs12 = stmt.executeQuery("SELECT * FROM calisan;");
-													//System.out.println("duzenlenecekKisi_yoneticiId: " + duzenlenecekKisi_yoneticiId);
-													//System.out.println("duzenlenecekKisi_yoneticiAd: " + duzenlenecekKisi_yoneticiAd);
-													//System.out.println("duzenlenecekKisi_yoneticiSoyad: " + duzenlenecekKisi_yoneticiSoyad);
-
-													while (rs12.next()) {
-												//System.out.println("calisanid: " + rs12.getInt("calisanid"));
-												if (duzenlenecekKisi_yoneticiId == rs12.getInt("calisanid")) {
-													out.println("<option selected='selected'>'" + rs12.getString("calisanad") + "'  '"
-															+ rs12.getString("calisansoyad") + "'</option>");
-												} else {
-													out.println("<option>'" + rs12.getString("calisanad") + "' '" + rs12.getString("calisansoyad")
-															+ "'</option>");
-												}
-													}
-													rs12.close();
-												}
-											} catch (Exception a) {
-												System.err.println("DB Bağlantı Hatası! ünvan");
-												System.err.println(a.getMessage());
-											}
-											%>
-										</select>
 									</div>
 								</div>
 								<!-- /.box-body -->
@@ -472,31 +460,29 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs22 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID + "';");
 													while (rs22.next()) {
-														out.println("<tr>");
-														out.println("<td>'" + rs22.getString("unvanbastarih") + "'</td>");
-														if(rs22.getString("unvanbittarih")==null){
-															out.println("<td>-</td>");
-														}
-														else{
-															out.println("<td>'" + rs22.getString("unvanbittarih") + "'</td>");
-														}
-														out.println("<td>'" + rs22.getString("unvanadi") + "'</td>");
-														
-														out.println("<td>'" + duzenlenecekKisi_departmanAdi + "'</td>");
-														out.println("</tr>");
+												out.println("<tr>");
+												out.println("<td>'" + rs22.getString("unvanbastarih") + "'</td>");
+												if (rs22.getString("unvanbittarih") == null) {
+													out.println("<td>-</td>");
+												} else {
+													out.println("<td>'" + rs22.getString("unvanbittarih") + "'</td>");
+												}
+												out.println("<td>'" + rs22.getString("unvanadi") + "'</td>");
+
+												out.println("<td>'" + rs22.getString("unvandepartmanadi") + "'</td>");
+
+												out.println("</tr>");
 													}
 													rs22.close();
 												}
 											} catch (Exception a) {
-												System.err.println("DB Bağlantı Hatası! ünvan");
+												System.err.println("DB Bağlantı Hatası! ünvan tablosu");
 												System.err.println(a.getMessage());
 											}
 											%>
@@ -659,46 +645,354 @@ try {
 
 String kisi_adi = request.getParameter("ad");
 String kisi_soyadi = request.getParameter("soyad");
-String kisi_eposta = request.getParameter("email");
-String kisi_sifre = request.getParameter("sifre");
+String kisi_eposta = request.getParameter("eposta");
 String kisi_telefon = request.getParameter("telefon");
-String kisi_isGirisTarihilk = request.getParameter("iseGirisTarih");
-String kisi_isGirisTarihson ="";
 String kisi_maas = request.getParameter("maas");
+
 String kisi_departman = request.getParameter("departman");
+String kisi_departmanid = "";
+String kisi_departmanad = "";
+
 String kisi_unvani = request.getParameter("unvan");
+String kisi_sifre = request.getParameter("sifre");
+String kisi_ilkunvani = "";
+String kisi_ilkdepartmanid = "";
 
-if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kisi_sifre != null)
-		&& (kisi_telefon != null) && (kisi_isGirisTarihilk != null) && (kisi_maas != null) && (kisi_departman != null)
-		&& (kisi_unvani != null)) {
-	//System.out.print("kisi_adi: " + kisi_adi + "\n");
-	//System.out.print("kisi_soyadi: " + kisi_soyadi + "\n");
-	//System.out.print("kisi_eposta: " + kisi_eposta + "\n");
-	//System.out.print("kisi_sifre: " + kisi_sifre + "\n");
-	//System.out.print("kisi_telefon: " + kisi_telefon + "\n");
+String guncelenecekUnvanid = "";
 
-	try {
-		//database bağlantısı için çağırdık
+String eskiUnvanDurum = "";
+String yeniUnvanDurum = "";
+
+System.out.print("\nkisi_adi: " + kisi_adi + "\n");
+System.out.print("kisi_soyadi: " + kisi_soyadi + "\n");
+System.out.print("kisi_eposta: " + kisi_eposta + "\n");
+System.out.print("kisi_sifre: " + kisi_sifre + "\n");
+System.out.print("kisi_telefon: " + kisi_telefon + "\n");
+System.out.print("kisi_maas: " + kisi_maas + "\n");
+System.out.print("kisi_departman: " + kisi_departman + "\n");
+System.out.print("kisi_unvani: " + kisi_unvani + "\n");
+
+
+try {
+	if (calisanId != null) {
 		dbBaglanti connec = new dbBaglanti();
 		Statement stmt = connec.getCon().createStatement();
-		
-		String pattern = "yyyy/MM/dd";
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-		kisi_isGirisTarihson = simpleDateFormat.format(new Date(kisi_isGirisTarihilk));
-		
-		kisi_isGirisTarihson = kisi_isGirisTarihson.replace("/", "-");
 
-		//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
-		if (calisanId != null) {
+
+		
+		if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kisi_sifre != null)
+		&& (kisi_telefon != null)) {
+			System.out.print("duzenlenecekKisi_yoneticiId: " + duzenlenecekKisi_yoneticiId + "\n");
+			System.out.print("Integer.parseInt(calisanId): " + Integer.parseInt(calisanId) + "\n");
+	if (!String.valueOf(duzenlenecekKisi_yoneticiId).isEmpty()) {
+		if ((kisi_maas != null) && (kisi_departman != null) && (kisi_unvani != null)) {
+			//yönetici profil güncellemesi
+			System.out.println("yönetici profil güncellemesi");
+			
+			String[] ayir = kisi_departman.split(".//.");
+			kisi_departmanid =ayir[0]; 
+			kisi_departmanad =ayir[1];
+
+			ResultSet rs11 = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + duzKisiID + "'");
+			if (rs11.next()) {
+				kisi_ilkunvani = rs11.getString("calisanunvan");
+				kisi_ilkdepartmanid = rs11.getString("calisandepartmanid");
+				System.out.println("\nkisi_ilkunvani"+kisi_ilkunvani);
+				System.out.println("\nkisi_ilkdepartmanid"+kisi_ilkdepartmanid);
+			} else {
+				System.out.println("\nkisi_ilkunvani ve kisi_ilkdepartmanid alınamadı. Yönetici");
+				session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+				session.setAttribute("duzKisiID", duzKisiID);
+				System.out.println(
+						"Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+				response.sendRedirect("profil.jsp");
+			}
+
+			//departman değişti mi
+			if (!kisi_ilkdepartmanid.equals(kisi_departmanid)) {
+				//kullanıcının departmanı değişti
+				//kullanıcının ünvanı değişti mi
+				System.out.println("departman değişti");
+				System.out.println("kisi_ilkdepartmanid: " + kisi_ilkdepartmanid);
+				System.out.println("kisi_departmanid: " + kisi_departmanid);
+				System.out.println("kisi_departmanad: " + kisi_departmanad);
+				if (!kisi_ilkunvani.equals(kisi_unvani)) {
+					//kullanıcının ünvanı değişti
+					//kullanıcının departman ve ünvan güncelle
+					System.out.println("ünvan değişti");
+					ResultSet rs222 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID
+							+ "' and unvanbastarih=unvanbittarih Order By unvanid DESC LIMIT 1");
+					if (rs222.next()) {
+						guncelenecekUnvanid = rs222.getString("unvanid");
+					}
+					rs222.close();
+					Date bugun = new Date();
+					String bugunTarihi = new SimpleDateFormat("yyyy/MM/dd").format(bugun);
+					int unvanBitTarihGüncelle = stmt.executeUpdate("UPDATE unvan SET unvanbittarih='"
+							+ bugunTarihi + "' where unvanid='" + guncelenecekUnvanid + "' ");
+					if (unvanBitTarihGüncelle == 1) {
+						eskiUnvanDurum = "eskiUnvanDurum Güncellendi";
+						List<Integer> unvanidList = new ArrayList<Integer>();
+						ResultSet rs116 = stmt.executeQuery("SELECT * FROM unvan");
+						while (rs116.next()) {
+							unvanidList.add(rs116.getInt("unvanid"));
+						}
+						rs116.close();
+						int maxunvanId = Collections.max(unvanidList);
+						maxunvanId = maxunvanId + 1;
+						int unvanDegisiklikEkle = stmt.executeUpdate(
+								"INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"
+										+ maxunvanId + "','" + duzKisiID + "','" + kisi_unvani + "','"
+										+ bugunTarihi + "','" + bugunTarihi + "','" + kisi_departmanad + "')");
+						if (unvanDegisiklikEkle == 1) {
+							yeniUnvanDurum = "yeniUnvanDurum Güncellendi";
+							int calisanGüncelle = stmt.executeUpdate("UPDATE calisan SET calisanad='" + kisi_adi
+									+ "',calisansoyad='" + kisi_soyadi + "',calisaneposta='" + kisi_eposta
+									+ "',calisantelefon='" + kisi_telefon + "',calisanmaas='" + kisi_maas
+									+ "',calisandepartmanid='" + kisi_departmanid + "',calisanunvan='"
+									+ kisi_unvani + "' where calisanid='" + duzKisiID + "'");
+							if (calisanGüncelle == 1) {
+								System.out.println("\nProfil Güncellendi.");
+								session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+								session.setAttribute("duzKisiID", duzKisiID);
+								System.out.println("profilguncellesession duzKisiID"
+										+ session.getAttribute("duzKisiID").toString());
+								response.sendRedirect("profil.jsp");
+							} else {
+								System.out.println("\nÇalışan Güncellenemedi Yönetici");
+								session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+								session.setAttribute("duzKisiID", duzKisiID);
+								System.out.println("Profilguncellesession duzKisiID"
+										+ session.getAttribute("duzKisiID").toString());
+								response.sendRedirect("profil.jsp");
+							}
+						} else {
+							System.out.println("\nYeni ünvan eklenemedi Yönetici");
+							session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+							session.setAttribute("duzKisiID", duzKisiID);
+							System.out.println("Profilguncellesession duzKisiID"
+									+ session.getAttribute("duzKisiID").toString());
+							response.sendRedirect("profil.jsp");
+						}
+					} else {
+						eskiUnvanDurum = "eskiUnvanDurum Güncellenemedi";
+						System.out.println("\neskiUnvanDurum Güncellenemedi Yönetici");
+						session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+						session.setAttribute("duzKisiID", duzKisiID);
+						System.out.println("Profilguncellesession duzKisiID"
+								+ session.getAttribute("duzKisiID").toString());
+						response.sendRedirect("profil.jsp");
+					}
+
+				} else {
+					//kullanıcının ünvanı değişmedi
+					//sadece unvan tablosunda yeni kayıt ile departman değişecek
+					System.out.println("ünvan değişmedi yeni deparman ile kayıt ekle");
+					ResultSet rs2222 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='"+ duzKisiID + "' and unvanbastarih=unvanbittarih and unvandepartmanadi=(SELECT departmanadi FROM departman WHERE departmanid='"
+							+ kisi_ilkdepartmanid + "')");
+					if (rs2222.next()) {
+						guncelenecekUnvanid = rs2222.getString("unvanid");
+						String unvanSonKayitunvancalisanid = rs2222.getString("unvancalisanid");
+						String unvanSonKayitunvanadi = rs2222.getString("unvanadi");
+						String unvanSonKayitunvanbastarih = rs2222.getString("unvanbastarih");
+						String unvanSonKayitunvanbittarih = rs2222.getString("unvanbittarih");
+						rs2222.close();
+
+						List<Integer> unvanidList2 = new ArrayList<Integer>();
+						ResultSet rs1162 = stmt.executeQuery("SELECT * FROM unvan");
+						while (rs1162.next()) {
+							unvanidList2.add(rs1162.getInt("unvanid"));
+						}
+						rs1162.close();
+						int maxunvanId2 = Collections.max(unvanidList2);
+						maxunvanId2 = maxunvanId2 + 1;
+
+						guncelenecekUnvanid = guncelenecekUnvanid + 1;
+						int unvanYeniKayitEkle = stmt.executeUpdate(
+								"INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"
+										+ maxunvanId2 + "','" + unvanSonKayitunvancalisanid + "','"
+										+ unvanSonKayitunvanadi + "','" + unvanSonKayitunvanbastarih + "','"
+										+ unvanSonKayitunvanbittarih + "','" + kisi_departmanad + "')");
+						if (unvanYeniKayitEkle == 1) {
+							int calisanGüncelle = stmt.executeUpdate("UPDATE calisan SET calisanad='" + kisi_adi
+									+ "',calisansoyad='" + kisi_soyadi + "',calisaneposta='" + kisi_eposta
+									+ "',calisantelefon='" + kisi_telefon + "',calisanmaas='" + kisi_maas
+									+ "',calisandepartmanid='" + kisi_departmanid + "',calisanunvan='"
+									+ kisi_unvani + "' where calisanid='" + duzKisiID + "'");
+							if (calisanGüncelle == 1) {
+								System.out.println("\nProfil Güncellendi.");
+								session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+								session.setAttribute("duzKisiID", duzKisiID);
+								System.out.println("profilguncellesession duzKisiID"
+										+ session.getAttribute("duzKisiID").toString());
+								response.sendRedirect("profil.jsp");
+							} else {
+								System.out.println("\nÇalışan Güncellenemedi 2 Yönetici");
+								session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+								session.setAttribute("duzKisiID", duzKisiID);
+								System.out.println("Profilguncellesession duzKisiID"
+										+ session.getAttribute("duzKisiID").toString());
+								response.sendRedirect("profil.jsp");
+							}
+						} else {
+							System.out.println("\nKullanıcı ünvan son departman adı ile eklenemedi");
+							session.setAttribute("kullaniciyaMesaj", "Kullanıcı Güncellenemedi.");
+							session.setAttribute("duzKisiID", duzKisiID);
+							System.out.println("calisanguncellesession duzKisiID"
+									+ session.getAttribute("duzKisiID").toString());
+							response.sendRedirect("calisanDuzenle.jsp");
+						}
+					} else {
+						System.out.println("\nKullanıcı ünvan tablosu son kayıt getirilemedi.");
+						session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+						session.setAttribute("duzKisiID", duzKisiID);
+						System.out.println(
+								"profilsession duzKisiID" + session.getAttribute("duzKisiID").toString());
+						response.sendRedirect("profil.jsp");
+					}
+				}
+			} else if (!kisi_ilkunvani.equals(kisi_unvani)) {
+				//kullanıcının departmanı değişmedi
+				//sadece ünvan değişecek
+				System.out.println("departman değişmedi eski bilgiler ve yeni ünvan ile ekle");
+				ResultSet rs222 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID
+						+ "' and unvanbastarih=unvanbittarih");
+				if (rs222.next()) {
+					guncelenecekUnvanid = rs222.getString("unvanid");
+				}
+				rs222.close();
+
+				Date bugun = new Date();
+				String bugunTarihi = new SimpleDateFormat("yyyy/MM/dd").format(bugun);
+
+				int unvanBitTarihGüncelle = stmt.executeUpdate("UPDATE unvan SET unvanbittarih='" + bugunTarihi
+						+ "' where unvanid='" + guncelenecekUnvanid + "' ");
+				if (unvanBitTarihGüncelle == 1) {
+					List<Integer> unvanidList = new ArrayList<Integer>();
+					ResultSet rs116 = stmt.executeQuery("SELECT * FROM unvan");
+					while (rs116.next()) {
+						unvanidList.add(rs116.getInt("unvanid"));
+					}
+					rs116.close();
+					int maxunvanId = Collections.max(unvanidList);
+					maxunvanId = maxunvanId + 1;
+					int unvanDegisiklikEkle = stmt.executeUpdate(
+							"INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"
+									+ maxunvanId + "','" + duzKisiID + "','" + kisi_unvani + "','" + bugunTarihi
+									+ "','" + bugunTarihi + "','" + kisi_departmanad + "')");
+					if (unvanBitTarihGüncelle == 1) {
+						System.out.println("\nProfil Güncellendi.");
+						session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+						session.setAttribute("duzKisiID", duzKisiID);
+						System.out.println("profilguncellesession duzKisiID"
+								+ session.getAttribute("duzKisiID").toString());
+						response.sendRedirect("profil.jsp");
+					} else {
+						System.out.println("\nProfil Güncellenemedi 2 Yönetici");
+						session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+						session.setAttribute("duzKisiID", duzKisiID);
+						System.out.println("Profilguncellesession duzKisiID"
+								+ session.getAttribute("duzKisiID").toString());
+						response.sendRedirect("profil.jsp");
+					}
+				} else {
+					System.out.println("\nÇalışan Güncellenemedi 3 Yönetici");
+					session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+					session.setAttribute("duzKisiID", duzKisiID);
+					System.out.println(
+							"Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+					response.sendRedirect("profil.jsp");
+				}
+			} else {
+				int calisanGüncelle2 = stmt.executeUpdate(
+						"UPDATE calisan SET calisanad='" + kisi_adi + "',calisansoyad='" + kisi_soyadi
+								+ "',calisaneposta='" + kisi_eposta + "',calisantelefon='" + kisi_telefon
+								+ "',calisanmaas='" + kisi_maas + "',calisandepartmanid='" + kisi_departmanid
+								+ "',calisanunvan='" + kisi_unvani + "' where calisanid='" + duzKisiID + "'");
+				if (calisanGüncelle2 == 1) {
+					System.out.println("\nProfil Güncellendi.");
+					session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+					session.setAttribute("duzKisiID", duzKisiID);
+					System.out.println(
+							"profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+					response.sendRedirect("profil.jsp");
+				} else {
+					System.out.println("\nProfil Güncellenemedi 4 Yönetici");
+					session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+					session.setAttribute("duzKisiID", duzKisiID);
+					System.out.println(
+							"Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+					response.sendRedirect("profil.jsp");
+				}
+
+			}
+
+		}else{
+			System.out.println("çalışan profil güncellemesi");
+			int calisanGüncelle22 = stmt.executeUpdate(
+					"UPDATE calisan SET calisanad='" + kisi_adi + "',calisansoyad='" + kisi_soyadi
+							+ "',calisaneposta='" + kisi_eposta + "',calisantelefon='" + kisi_telefon
+							+ "' where calisanid='" + duzKisiID + "'");
+			if (calisanGüncelle22 == 1) {
+				System.out.println("\nProfil Güncellendi.");
+				session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+				session.setAttribute("duzKisiID", duzKisiID);
+				System.out.println(
+						"profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+				response.sendRedirect("profil.jsp");
+			} else {
+				System.out.println("\nProfil Güncellenemedi 5 Çalışan");
+				session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+				session.setAttribute("duzKisiID", duzKisiID);
+				System.out.println(
+						"Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+				response.sendRedirect("profil.jsp");
+			}
+		}
+
+	}	
+	else {
+			//çalışan profil güncellemesi
+			System.out.println("çalışan profil güncellemesi");
+			int calisanGüncelle22 = stmt.executeUpdate(
+					"UPDATE calisan SET calisanad='" + kisi_adi + "',calisansoyad='" + kisi_soyadi
+							+ "',calisaneposta='" + kisi_eposta + "',calisantelefon='" + kisi_telefon
+							+ "',calisanmaas='" + kisi_maas + "',calisandepartmanid='" + kisi_departmanid
+							+ "',calisanunvan='" + kisi_unvani + "' where calisanid='" + duzKisiID + "'");
+			if (calisanGüncelle22 == 1) {
+				System.out.println("\nProfil Güncellendi.");
+				session.setAttribute("kullaniciyaMesaj", "Profil Güncellendi.");
+				session.setAttribute("duzKisiID", duzKisiID);
+				System.out.println(
+						"profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+				response.sendRedirect("profil.jsp");
+			} else {
+				System.out.println("\nProfil Güncellenemedi 5 Çalışan");
+				session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+				session.setAttribute("duzKisiID", duzKisiID);
+				System.out.println(
+						"Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+				response.sendRedirect("profil.jsp");
+			}
+		}
 
 		} else {
-	//System.out.print("Böyle bir kayıt yok\n");
-	response.sendRedirect("index.jsp");
+	System.out.println("\nEksik veri girişi.2");
+	session.setAttribute("kullaniciyaMesaj", "Profil Güncellenemedi.");
+	session.setAttribute("duzKisiID", duzKisiID);
+	System.out.println("Profilguncellesession duzKisiID" + session.getAttribute("duzKisiID").toString());
+	//response.sendRedirect("profil.jsp");
 		}
-	} catch (Exception a) {
-		System.err.println("DB Bağlantı Hatası! ünvan");
-		System.err.println(a.getMessage());
+	} else {
+		//System.out.print("Böyle bir kayıt yok\n");
+		response.sendRedirect("index.jsp");
 	}
 
+} catch (Exception a) {
+	System.err.println("DB Bağlantı Hatası! profil");
+	System.err.println(a.getMessage());
 }
 %>
+
+
+

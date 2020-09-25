@@ -25,9 +25,7 @@ if ((duzdepartmanAd != null) && (duzdepartmanYonetici != null) && (duzdepartmanL
 		calisanId = session.getAttribute("calisanId").toString();System.out.println("calisanId" + calisanId);
 		duzDepartmanID = session.getAttribute("duzDepartmanID").toString();
 		
-		//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 		if (calisanId != null) {
-			//database bağlantısı için çağırdık
 			dbBaglanti connec = new dbBaglanti();
 			Statement stmt = connec.getCon().createStatement();
 			
@@ -70,6 +68,5 @@ if ((duzdepartmanAd != null) && (duzdepartmanYonetici != null) && (duzdepartmanL
 		System.err.println("DB Bağlantı Hatası! departmanguncelle");
 		System.err.println(a.getMessage());
 	}
-
 }
 %>

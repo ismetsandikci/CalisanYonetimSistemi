@@ -43,7 +43,7 @@
 			<div class="wrap-login100 p-l-85 p-r-85 p-t-55 p-b-55">
 				<form class="login100-form validate-form flex-sb flex-w" action="index.jsp" method="post" id="girisForm" name="girisForm">
 					<span class="login100-form-title p-b-32">
-						IS YAZILIM <br> ÇALISAN YÖNETİM SİSTEMİ
+						ISMET YAZILIM <br> ÇALISAN YÖNETİM SİSTEMİ
 					</span>
 					<span class="txt1 p-b-11">
 						Eposta
@@ -135,31 +135,21 @@ try
   String calisanId = "";
   String departmanTabloYoneticiId ="";
 		  
-  //Eğer email ve şifre alanı boş değilse kaydetme işmelini yapıyoruz
   if ((Email!=null) && (Password!=null)){
 	  ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisaneposta='" + Email + "' and calisansifre= '" + Password + "' ;");
 	  if (rs.next()){
 		  
-		  //giriş yapan kişinin kişi id ve seviyesini aldık.Bu bilgileri aldık çünkü gerekli sayfalarda bu bilgileri çekerek ona göre işlem yapıcaz
 		  calisanId = rs.getString("calisanid");
-		  
-		//kişi idsini tüm sayfalardan rahatça ulaşabilmek için session a attık
-	      session.setAttribute("calisanId", calisanId);
-	      System.out.print("calisanId: " + calisanId + "\n");
+		  session.setAttribute("calisanId", calisanId);
+	      //System.out.print("calisanId: " + calisanId + "\n");
 	      
-		  //Eğer kişi yönetici ise yönetici tablosunda yönetici id sini çekiyoruz
 		  ResultSet rs2 = stmt.executeQuery("SELECT * FROM departman where departmanyoneticiid='" + calisanId + "' ;");
 	      if(rs2.next()){
 	    	  departmanTabloYoneticiId = rs2.getString("departmanYoneticiid");
-	    	  System.out.print("departmanTabloYoneticiId: " + departmanTabloYoneticiId + "\n");
-	    	  //System.out.print("departman yönetici sorgu başarılı kullanıcı yönetici\n");
-
-		      //Bunu yapmamın amacı aynı sayfada farklı bir kaç mesaj olabilir. Verilecek olan uyarıyı bu sessiona atarak göstermek daha kolay olabilir.
-		      session.setAttribute("departmanTabloYoneticiId", departmanTabloYoneticiId);
+	    	  //System.out.print("departmanTabloYoneticiId: " + departmanTabloYoneticiId + "\n");
+	    	  session.setAttribute("departmanTabloYoneticiId", departmanTabloYoneticiId);
 	      }
 	      
-
-	      //kişinin seviyesine göre oturum açıldığında yönlendirilecek sayfalar
    		  if(calisanId!=null){
    			response.sendRedirect("calisanListe.jsp");
    		  }
@@ -179,14 +169,11 @@ try
 		  //response.sendRedirect("index.jsp");
 	  }
   }
-  //Eğer bilgiler tam girilmediyse uyarı veriyoruz.
-  //Ama template de bu uyarıyı verdiği için alert koymadım.
   else{
-	  System.out.print("Eksik veri girişi\n");
+	  //System.out.print("Eksik veri girişi\n");
   }
   
 }
-//Eğer bağlantıda bir hata varsa göster.
 catch (Exception a)
 {
   System.err.println("DB Bağlantı Hatası! Login Sayfası");

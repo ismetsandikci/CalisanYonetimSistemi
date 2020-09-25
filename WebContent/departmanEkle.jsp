@@ -12,24 +12,20 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String alertMesaj = "";
 
 String kullaniciyaMesaj="";
 
 try {
-	//database bağlantısı için çağırdık
 	dbBaglanti connec = new dbBaglanti();
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	//System.out.print("calisanekle calisanId:"+calisanId+"\n");
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 	
 	kullaniciyaMesaj = session.getAttribute("kullaniciyaMesaj").toString();
 	session.setAttribute("kullaniciyaMesaj", "");
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
+
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -260,7 +256,7 @@ try {
               <div class="box-body">
                 <div class="form-group">
                   <label>Departman Adı</label>
-                  <input type="text" class="form-control" id="departmanAd" name="departmanAd" placeholder="Departman Adı">
+                  <input type="text" class="form-control" id="departmanAd" name="departmanAd" placeholder="Departman Adı" required="required">
                 </div>
 				<div class="form-group">
                 <label>Yönetici</label> <select id="departmanYonetici"
@@ -270,11 +266,9 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs12 = stmt.executeQuery("SELECT * FROM calisan;");
 
@@ -299,11 +293,9 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs13 = stmt.executeQuery("SELECT * FROM lokasyon;");
 
@@ -462,9 +454,7 @@ System.out.println("departman_lokasyonId"+departman_lokasyonId);
 if ((departman_adi != null) && (departman_yoneticiId != null) && (departman_lokasyonId != null)) {
 
 	try {
-		//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 		if (calisanId != null) {
-			//database bağlantısı için çağırdık
 			dbBaglanti connec = new dbBaglanti();
 			Statement stmt = connec.getCon().createStatement();
 			

@@ -15,7 +15,6 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String alertMesaj = "";
 
@@ -28,11 +27,9 @@ try {
 
 	calisanId = session.getAttribute("calisanId").toString();
 	//System.out.print("calisanekle calisanId:"+calisanId+"\n");
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 	
 	kullaniciyaMesaj = session.getAttribute("kullaniciyaMesaj").toString();
 	session.setAttribute("kullaniciyaMesaj", "");
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -276,31 +273,31 @@ try {
             }
             %>
 							<!-- form start -->
-							<form role="form" action="calisanEkle.jsp" method="post"
-								id="calisanEkleForm" name="calisanEkleForm">
+							<form role="form" action="calisanEkle.jsp" method="post"  
+								id="calisanEkleForm" name="calisanEkleForm" >
 								<div class="box-body">
 									<div class="form-group">
 										<label>Ad</label> <input type="text" class="form-control"
-											id="ad" name="ad" maxlength="15" placeholder="Ad">
+											id="ad" name="ad" maxlength="15" placeholder="Ad" required="required">
 									</div>
 									<div class="form-group">
 										<label>Soyad</label> <input type="text" class="form-control"
-											id="soyad" name="soyad" maxlength="15" placeholder="Soyad">
+											id="soyad" name="soyad" maxlength="15" placeholder="Soyad" required="required">
 									</div>
 									<div class="form-group">
 										<label for="exampleInputEmail1">E-Posta</label> <input
 											type="email" class="form-control" id="eposta" name="eposta"
-											placeholder="Email">
+											placeholder="Email" required="required">
 									</div>
 									<div class="form-group">
 										<label for="exampleInputEmail1">Şifre</label> <input
 											type="text" class="form-control" id="sifre" name="sifre"
-											maxlength="5" placeholder="Şifre">
+											maxlength="5" placeholder="Şifre" required="required">
 									</div>
 									<div class="form-group">
 										<label>Telefon</label> <input type="text" class="form-control"
 											id="telefon" name="telefon" pattern="[0-9]{11}"
-											maxlength="11" placeholder="Telefon">
+											maxlength="11" placeholder="Telefon" required="required">
 									</div>
 									<div class="form-group">
 										<label>İşe Giriş Tarihi:</label>
@@ -310,32 +307,30 @@ try {
 												<i class="fa fa-calendar"></i>
 											</div>
 											<input type="text" class="form-control pull-right"
-												id="datepicker" name="datepicker">
+												id="datepicker" name="datepicker" required="required">
 										</div>
 										<!-- /.input group -->
 									</div>
 									<div class="form-group">
 										<label>Maaş</label> <input type="text" class="form-control"
-											id="maas" name="maas" maxlength="15"
-											placeholder="Maaş">
+											id="maas" name="maas" maxlength="15" pattern="[0-9]{4,15}"
+											placeholder="Maaş" required="required">
 									</div>
 									<div class="form-group">
 										<label>Departman</label> <select id="departman"
 											name="departman"
 											class="form-control select2 select2-hidden-accessible"
-											style="width: 100%;" tabindex="-1" aria-hidden="true">
+											style="width: 100%;" tabindex="-1" aria-hidden="true"  >
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs11 = stmt.executeQuery("SELECT * FROM departman;");
 													while (rs11.next()) {
-												out.println("<option value='" + rs11.getString("departmanid") + "' >'" + rs11.getString("departmanadi")
+												out.println("<option value='" + rs11.getString("departmanid") +".//."+rs11.getString("departmanadi") + "' >'" + rs11.getString("departmanadi")
 														+ "'</option>");
 													}
 													rs11.close();
@@ -352,7 +347,7 @@ try {
 									</div>
 									<div class="form-group">
 										<label>Ünvan</label> <input type="text" class="form-control"
-											maxlength="50" id="unvan" name="unvan" placeholder="Ünvan">
+											maxlength="50" id="unvan" name="unvan" placeholder="Ünvan" required="required">
 									</div>
 								</div>
 								<!-- /.box-body -->
@@ -522,7 +517,13 @@ String kisi_telefon = request.getParameter("telefon");
 String kisi_isGirisTarihilk = request.getParameter("datepicker");
 String kisi_isGirisTarihson ="";
 String kisi_maas = request.getParameter("maas");
+
 String kisi_departman = request.getParameter("departman");
+String kisi_departmanid="";
+String kisi_departmanad="";
+
+
+
 String kisi_unvani = request.getParameter("unvan");
 
 if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kisi_sifre != null)
@@ -546,11 +547,15 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 	//System.out.print("kisi_unvani: " + kisi_unvani + "\n");
 
 	try {
-		//database bağlantısı için çağırdık
 		dbBaglanti connec = new dbBaglanti();
 		Statement stmt = connec.getCon().createStatement();
+		
+		if(!kisi_departman.equals(null) || !kisi_departman.equals("")){
+			String[] ayir = kisi_departman.split(".//.");
+			kisi_departmanid =ayir[0]; 
+			kisi_departmanad =ayir[1];
+		}
 
-		//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 		if (calisanId != null) {
 			List<Integer> idList = new ArrayList<Integer>();
 			ResultSet rs11 = stmt.executeQuery("SELECT * FROM calisan");
@@ -569,7 +574,7 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 			}
 			else{
 				int calisanEkle = stmt.executeUpdate(
-						"INSERT INTO calisan (calisanId,calisanad,calisansoyad,calisaneposta,calisantelefon,calisanisegiristarihi,calisanmaas,calisandepartmanid,calisanunvan,calisansifre) VALUES ('"+ maxId + "','"+ kisi_adi + "','" + kisi_soyadi + "','" + kisi_eposta + "','" + kisi_telefon + "','"+ kisi_isGirisTarihson + "','" + kisi_maas + "','" + kisi_departman + "','" + kisi_unvani+ "','" + kisi_sifre + "');");
+						"INSERT INTO calisan (calisanId,calisanad,calisansoyad,calisaneposta,calisantelefon,calisanisegiristarihi,calisanmaas,calisandepartmanid,calisanunvan,calisansifre) VALUES ('"+ maxId + "','"+ kisi_adi + "','" + kisi_soyadi + "','" + kisi_eposta + "','" + kisi_telefon + "','"+ kisi_isGirisTarihson + "','" + kisi_maas + "','" + kisi_departmanid + "','" + kisi_unvani+ "','" + kisi_sifre + "');");
 				if (calisanEkle == 1) {
 					
 					List<Integer> unvanidList = new ArrayList<Integer>();
@@ -582,7 +587,7 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 					maxunvanId=maxunvanId+1;
 					
 					int calisanUnvanEkle = stmt.executeUpdate(
-							"INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanid) VALUES ('"+ maxunvanId + "','"+ maxId + "','" + kisi_unvani + "','" + kisi_isGirisTarihson + "','" + kisi_isGirisTarihson + "','"+ kisi_departman + "');");
+							"INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"+ maxunvanId + "','"+ maxId + "','" + kisi_unvani + "','" + kisi_isGirisTarihson + "','" + kisi_isGirisTarihson + "','"+ kisi_departmanad + "');");
 					if (calisanUnvanEkle == 1) {
 						System.out.println("\nKullanıcı Eklendi");
 						session.setAttribute("kullaniciyaMesaj", "Kullanıcı Eklendi.");

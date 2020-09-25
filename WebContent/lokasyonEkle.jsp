@@ -12,7 +12,6 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String alertMesaj = "";
 
@@ -24,7 +23,6 @@ try {
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 	
 	kullaniciyaMesaj = session.getAttribute("kullaniciyaMesaj").toString();
 	session.setAttribute("kullaniciyaMesaj", "");
@@ -275,23 +273,23 @@ try {
 								<div class="box-body">
 									<div class="form-group">
 										<label>Lokasyon Adı</label> <input type="text"
-											class="form-control" id="lokasyonAd" name="lokasyonAd" placeholder="Lokasyon Adı">
+											class="form-control" id="lokasyonAd" name="lokasyonAd" placeholder="Lokasyon Adı" required="required">
 									</div>
 									<div class="form-group">
 										<label>Adresi</label> <input type="text" class="form-control"
-											name="lokasyonAdresi" placeholder="Adresi" placeholder="Adresi">
+											name="lokasyonAdresi" placeholder="Adresi" placeholder="Adresi" required="required">
 									</div>
 									<div class="form-group">
 										<label>Posta Kodu</label> <input type="text"
-											class="form-control" id="lokasyonPostaKodu" name="lokasyonPostaKodu" placeholder="Posta Kodu">
+											class="form-control" id="lokasyonPostaKodu" name="lokasyonPostaKodu" placeholder="Posta Kodu"  required="required">
 									</div>
 									<div class="form-group">
 										<label>Lokasyon Şehir</label> <input type="text"
-											class="form-control" id="lokasyonSehir" name="lokasyonSehir" placeholder="Lokasyon Adı">
+											class="form-control" id="lokasyonSehir" name="lokasyonSehir" placeholder="Lokasyon Adı" required="required">
 									</div>
 									<div class="form-group">
 										<label>Lokasyon Ülke</label> <input type="text"
-											class="form-control" id="lokasyonUlke" name="lokasyonUlke" placeholder="Lokasyon Adı">
+											class="form-control" id="lokasyonUlke" name="lokasyonUlke" placeholder="Lokasyon Adı" required="required">
 									</div>
 								</div>
 								<!-- /.box-body -->
@@ -458,14 +456,11 @@ String lokasyonpostakodu = request.getParameter("lokasyonPostaKodu");
 String lokasyonsehir = request.getParameter("lokasyonSehir");
 String lokasyoulke = request.getParameter("lokasyonUlke");
 
-//System.out.println("departman_adi"+departman_adi);
 
 if ((lokasyonadi != null) && (lokasyonadresi != null) && (lokasyonpostakodu != null) && (lokasyonsehir != null) && (lokasyoulke != null)) {
 
 	try {
-		//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 		if (calisanId != null) {
-			//database bağlantısı için çağırdık
 			dbBaglanti connec = new dbBaglanti();
 			Statement stmt = connec.getCon().createStatement();
 			

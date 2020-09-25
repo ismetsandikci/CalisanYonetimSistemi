@@ -21,7 +21,11 @@ String kisi_telefon = request.getParameter("telefon");
 String kisi_isGirisTarihilk = request.getParameter("datepicker");
 String kisi_isGirisTarihson ="";
 String kisi_maas = request.getParameter("maas");
+
 String kisi_departman = request.getParameter("departman");
+String kisi_departmanid="";
+String kisi_departmanad="";
+
 String kisi_unvani = request.getParameter("unvan");
 String kisi_ilkunvani ="";
 String kisi_ilkdepartmanid ="";
@@ -35,6 +39,10 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 		//database bağlantısı için çağırdık
 		dbBaglanti connec = new dbBaglanti();
 		Statement stmt = connec.getCon().createStatement();
+		
+		String[] ayir = kisi_departman.split(".//.");
+		kisi_departmanid =ayir[0]; 
+		kisi_departmanad =ayir[1];
 
 		calisanId = session.getAttribute("calisanId").toString();
 		duzKisiID = session.getAttribute("duzKisiID").toString();
@@ -56,14 +64,15 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 					kisi_ilkdepartmanid=rs11.getString("calisandepartmanid");
 				}
 				
-				int calisanGüncelle = stmt.executeUpdate("UPDATE calisan SET calisanad='"+ kisi_adi + "',calisansoyad='" + kisi_soyadi + "',calisaneposta='" + kisi_eposta + "',calisantelefon='" + kisi_telefon + "',calisanisegiristarihi='"+ kisi_isGirisTarihson + "',calisanmaas='" + kisi_maas + "',calisandepartmanid='" + kisi_departman + "',calisanunvan='" + kisi_unvani+ "' where calisanid='" + duzKisiID + "'");
+				int calisanGüncelle = stmt.executeUpdate("UPDATE calisan SET calisanad='"+ kisi_adi + "',calisansoyad='" + kisi_soyadi + "',calisaneposta='" + kisi_eposta + "',calisantelefon='" + kisi_telefon + "',calisanisegiristarihi='"+ kisi_isGirisTarihson + "',calisanmaas='" + kisi_maas + "',calisandepartmanid='" + kisi_departmanid + "',calisanunvan='" + kisi_unvani+ "' where calisanid='" + duzKisiID + "'");
 				if (calisanGüncelle == 1) {
 					//kullanıcının departmanı değişti mi
-					if(!kisi_ilkdepartmanid.equals(kisi_departman)){
+					if(!kisi_ilkdepartmanid.equals(kisi_departmanid)){
 						//kullanıcının departmanı değişti
 						//kullanıcının ünvanı değişti mi
-						System.out.println("\nkisi_ilkdepartmanid"+kisi_ilkdepartmanid);
-						System.out.println("\nkisi_departman"+kisi_departman);
+						System.out.println("kisi_ilkdepartmanid: "+kisi_ilkdepartmanid);
+						System.out.println("kisi_departmanid: "+kisi_departmanid);
+						System.out.println("kisi_departmanad: "+kisi_departmanad);
 						if(!kisi_ilkunvani.equals(kisi_unvani)){
 							//kullanıcının ünvanı değişti
 							//kullanıcının departman ve ünvan güncelle
@@ -84,7 +93,7 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 								rs116.close();
 								int maxunvanId = Collections.max(unvanidList);
 								maxunvanId=maxunvanId+1;
-								int unvanDegisiklikEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanid) VALUES ('"+ maxunvanId + "','"+ duzKisiID + "','"+ kisi_unvani + "','"+ bugunTarihi + "','"+ bugunTarihi + "','"+ kisi_departman + "')");
+								int unvanDegisiklikEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"+ maxunvanId + "','"+ duzKisiID + "','"+ kisi_unvani + "','"+ bugunTarihi + "','"+ bugunTarihi + "','"+ kisi_departmanad + "')");
 								if(unvanBitTarihGüncelle==1){
 									System.out.println("\nKullanıcı Güncellendi.");
 									session.setAttribute("kullaniciyaMesaj", "Kullanıcı Güncellendi.");
@@ -105,7 +114,8 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 						else{
 							//kullanıcının ünvanı değişmedi
 							//sadece unvan tablosunda yeni kayıt ile departman değişecek
-							ResultSet rs2222 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID + "' and unvanbastarih=unvanbittarih and unvandepartmanid='" + kisi_ilkdepartmanid + "'");
+							
+							ResultSet rs2222 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID + "' and unvanbastarih=unvanbittarih and unvandepartmanadi=(SELECT departmanadi FROM departman WHERE departmanid='" + kisi_ilkdepartmanid + "')");
 							if(rs2222.next()){
 								guncelenecekUnvanid = rs2222.getString("unvanid");
 								String unvanSonKayitunvancalisanid=rs2222.getString("unvancalisanid");
@@ -125,7 +135,7 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 								
 								
 								guncelenecekUnvanid = guncelenecekUnvanid +1;
-								int unvanYeniKayitEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanid) VALUES ('"+ maxunvanId2 + "','"+ unvanSonKayitunvancalisanid + "','"+ unvanSonKayitunvanadi + "','"+ unvanSonKayitunvanbastarih + "','"+ unvanSonKayitunvanbittarih + "','"+ kisi_departman + "')"); 
+								int unvanYeniKayitEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"+ maxunvanId2 + "','"+ unvanSonKayitunvancalisanid + "','"+ unvanSonKayitunvanadi + "','"+ unvanSonKayitunvanbastarih + "','"+ unvanSonKayitunvanbittarih + "','"+ kisi_departmanad + "')"); 
 								if (unvanYeniKayitEkle == 1) {
 									System.out.println("\nKullanıcı Güncellendi.");
 									session.setAttribute("kullaniciyaMesaj", "Kullanıcı Güncellendi.");
@@ -173,7 +183,7 @@ if ((kisi_adi != null) && (kisi_soyadi != null) && (kisi_eposta != null) && (kis
 							rs116.close();
 							int maxunvanId = Collections.max(unvanidList);
 							maxunvanId=maxunvanId+1;
-							int unvanDegisiklikEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanid) VALUES ('"+ maxunvanId + "','"+ duzKisiID + "','"+ kisi_unvani + "','"+ bugunTarihi + "','"+ bugunTarihi + "','"+ kisi_departman + "')");
+							int unvanDegisiklikEkle = stmt.executeUpdate("INSERT INTO unvan (unvanid,unvancalisanid,unvanadi,unvanbastarih,unvanbittarih,unvandepartmanadi) VALUES ('"+ maxunvanId + "','"+ duzKisiID + "','"+ kisi_unvani + "','"+ bugunTarihi + "','"+ bugunTarihi + "','"+ kisi_departmanad + "')");
 							if(unvanBitTarihGüncelle==1){
 								System.out.println("\nKullanıcı Güncellendi.");
 								session.setAttribute("kullaniciyaMesaj", "Kullanıcı Güncellendi.");

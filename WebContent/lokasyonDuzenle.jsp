@@ -13,7 +13,6 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String duzLokasyonID = request.getParameter("duzenle");
 String duzLokasyonAd="";
@@ -30,15 +29,11 @@ try {
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 	
-	//System.out.println("lokasyonduzenle kullaniciyaMesaj"+kullaniciyaMesaj);
 	kullaniciyaMesaj=session.getAttribute("kullaniciyaMesaj").toString();
-	//System.out.println("lokasyonduzenle kullaniciyaMesaj2"+kullaniciyaMesaj);
 		
 	if((kullaniciyaMesaj=="Lokasyon Güncellendi.") || (kullaniciyaMesaj=="Lokasyon Güncellenemedi.")){
 		duzLokasyonID = session.getAttribute("duzLokasyonID").toString();
-		//System.out.println("lokasyonduzenlesession duzLokasyonID" + duzLokasyonID);
 			
 		kullaniciyaMesaj=session.getAttribute("kullaniciyaMesaj").toString();
 		session.setAttribute("kullaniciyaMesaj", "");
@@ -51,7 +46,6 @@ try {
 		System.out.println("lokasyonduzenle Listeden duzLokasyonID" + duzLokasyonID);
 	}
 
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -320,11 +314,9 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs13 = stmt.executeQuery("SELECT * FROM lokasyon;");
 
@@ -352,11 +344,9 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs131 = stmt.executeQuery("SELECT * FROM lokasyon;");
 

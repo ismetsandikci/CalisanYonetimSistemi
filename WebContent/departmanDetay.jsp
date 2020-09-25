@@ -13,16 +13,15 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String detayDepartmanID = request.getParameter("detay");
-String detayDepartmanAd="";
+String detayDepartmanAd = "";
 System.out.println("detayDepartmanID: " + detayDepartmanID);
 
-int enBuyukMaas=0;
-int enKucukMaas=0;
-int ortalamaMaas=0;
-int toplamMaas=0;
+int enBuyukMaas = 0;
+int enKucukMaas = 0;
+int ortalamaMaas = 0;
+int toplamMaas = 0;
 
 try {
 	//database bağlantısı için çağırdık
@@ -30,9 +29,7 @@ try {
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -40,24 +37,25 @@ try {
 	calisanAd = rs.getString("calisanad");
 	calisanSoyad = rs.getString("calisansoyad");
 	calisanUnvan = rs.getString("calisanunvan");
-	
+
 	ResultSet rs2 = stmt.executeQuery("SELECT * FROM departman where departmanid='" + detayDepartmanID + "' ;");
 	if (rs2.next()) {
-		detayDepartmanAd=rs2.getString("departmanadi");
+		detayDepartmanAd = rs2.getString("departmanadi");
 	}
-	
+
 	//En büyük, en küçük ve ortalama maaş hesapla
 	List<Integer> maas = new ArrayList<Integer>();
-	ResultSet rs55 = stmt.executeQuery("SELECT * FROM calisan where calisandepartmanid='" + detayDepartmanID + "' ;");
-	while(rs55.next()){
+	ResultSet rs55 = stmt
+			.executeQuery("SELECT * FROM calisan where calisandepartmanid='" + detayDepartmanID + "' ;");
+	while (rs55.next()) {
 		maas.add(rs55.getInt("calisanmaas"));
 		toplamMaas = toplamMaas + rs55.getInt("calisanmaas");
 	}
 	rs55.close();
-	enBuyukMaas=Collections.max(maas);
-	enKucukMaas=Collections.min(maas);
-	ortalamaMaas=toplamMaas / maas.size();
-	
+	enBuyukMaas = Collections.max(maas);
+	enKucukMaas = Collections.min(maas);
+	ortalamaMaas = toplamMaas / maas.size();
+
 	rs2.close();
 
 	rs.close();
@@ -137,6 +135,90 @@ try {
 <!-- Google Font -->
 <link rel="stylesheet"
 	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+<style type="text/CSS">
+*, *:before, *:after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+#wrapper {
+	max-width: 15em;
+}
+
+#container {
+	float: left;
+	padding: 1em;
+	width: 100%;
+}
+
+ol.organizational-chart, ol.organizational-chart ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+ol.organizational-chart {
+	text-align: center;
+}
+
+ol.organizational-chart ol {
+	padding-top: 1em;
+}
+
+
+ol.organizational-chart ol>li {
+	padding: 1em 0 0 1em;
+}-
+
+
+ol.organizational-chart>li ol>li:last-of-type:before {
+	height: 3px;
+	left: 0;
+	top: 2em;
+	width: 1em;
+}
+
+ol.organizational-chart>li ol>li:last-of-type:after {
+	height: 2em;
+	left: 0;
+	top: 0;
+	width: 3px;
+}
+
+ol.organizational-chart li>div {
+	background-color: #fff;
+	border-radius: 3px;
+	min-height: 2em;
+	padding: 0.5em;
+}
+
+/*** PRIMARY ***/
+ol.organizational-chart>li>div {
+	background-color: #a2ed56;
+	margin-right: 1em;
+}
+
+
+
+
+/*** SECONDARY ***/
+ol.organizational-chart>li>ol>li>div {
+	background-color: #83e4e2;
+}
+
+/*** MEDIA QUERIES ***/
+@media only screen and ( min-width: 64em ) {
+	/* PRIMARY */
+
+	/* SECONDARY */
+	ol.organizational-chart>li>ol {
+		display: flex;
+		flex-wrap: nowrap;
+	}
+}
+</style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 	<div class="wrapper">
@@ -161,9 +243,7 @@ try {
 						<li class="dropdown user user-menu"><a href="#"
 							class="dropdown-toggle" data-toggle="dropdown"> <img
 								src="dist/img/user2-160x160.jpg" class="user-image"
-								alt="User Image"> <span class="hidden-xs">
-									<%out.println(calisanAd + " " + calisanSoyad);%>
-							</a>
+								alt="User Image"> <span class="hidden-xs"> <%out.println(calisanAd + " " + calisanSoyad);%></a>
 							<ul class="dropdown-menu">
 								<!-- User image -->
 								<li class="user-header"><img
@@ -202,8 +282,7 @@ try {
 						<p>
 							<%out.println(calisanAd + " " + calisanSoyad);%>
 						</p>
-						<a href="#"><i class="text-success"></i>
-							<%out.println(calisanUnvan);%></a>
+						<a href="#"><i class="text-success"></i> <%out.println(calisanUnvan);%></a>
 					</div>
 				</div>
 				<!-- sidebar menu: : style can be found in sidebar.less -->
@@ -253,7 +332,10 @@ try {
 		<div class="content-wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
-				<h1><%out.println(detayDepartmanAd);%> Departman Detayı</h1>
+				<h1>
+					<%out.println(detayDepartmanAd);%>
+					Departman Detayı
+				</h1>
 				<ol class="breadcrumb">
 					<li><a href="#"><i class="fa fa-dashboard"></i> Anasayfa</a></li>
 					<li>Departman Listesi</li>
@@ -271,7 +353,8 @@ try {
 								class="fa fa-battery-4 " style="margin-top: 20px;"></i></span>
 							<div class="info-box-content">
 								<span class="info-box-text">En Yüksek Maaş</span> <span
-									class="info-box-number"><%out.println(enBuyukMaas);%></span>
+									class="info-box-number"> <%out.println(enBuyukMaas);%>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -281,7 +364,8 @@ try {
 								class="fa fa-battery-0" style="margin-top: 20px;"></i></span>
 							<div class="info-box-content">
 								<span class="info-box-text">En Düşük Maaş</span> <span
-									class="info-box-number"><%out.println(enKucukMaas);%></span>
+									class="info-box-number"> <%out.println(enKucukMaas);%>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -291,7 +375,8 @@ try {
 								class="fa fa-battery-2" style="margin-top: 20px;"></i></span>
 							<div class="info-box-content">
 								<span class="info-box-text">Maaş Ortalaması</span> <span
-									class="info-box-number"><%out.println(ortalamaMaas);%></span>
+									class="info-box-number"> <%out.println(ortalamaMaas);%>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -300,92 +385,163 @@ try {
 				</div>
 
 				<div class="row">
-					<div class="col-xs-12">
-						<div class="box">
-							<div class="box-header">
+					<div class="col-md-12">
+						<div class="box box-info">
+							<div class="box-header with-border">
 								<h3 class="box-title">Departman Çalışanları Listesi</h3>
 
-								<div class="box-tools">
-									<div class="input-group input-group-sm" style="width: 150px;">
-										<input type="text" name="table_search"
-											class="form-control pull-right" placeholder="Search">
-
-										<div class="input-group-btn">
-											<button type="submit" class="btn btn-default">
-												<i class="fa fa-search"></i>
-											</button>
-										</div>
-									</div>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool"
+										data-widget="collapse">
+										<i class="fa fa-minus"></i>
+									</button>
 								</div>
 							</div>
 							<!-- /.box-header -->
-							<div class="box-body table-responsive no-padding">
-								<table class="table table-hover">
+							<div class="box-body" style="">
+								<div class="table-responsive">
+									<table class="table no-margin">
+										<thead>
+											<tr>
+												<th>Ad</th>
+												<th>Soyad</th>
+												<th>Eposta</th>
+												<th>Telefon</th>
+												<th>Maaş</th>
+												<th>Ünvan</th>
+												<th>Yönetici</th>
+												<th>Lokasyon</th>
+											</tr>
+										</thead>
+										<tbody>
+											<%
+												request.setCharacterEncoding("UTF-8");
 
-									<tbody>
-										<tr>
-											<th>Ad</th>
-											<th>Soyad</th>
-											<th>Eposta</th>
-											<th>Telefon</th>
-											<th>Maaş</th>
-											<th>Ünvan</th>
-											<th>Yönetici</th>
-											<th>Lokasyon</th>
-										</tr>
+											try {
+												dbBaglanti connec = new dbBaglanti();
+												Statement stmt = connec.getCon().createStatement();
 
-										<%
-											request.setCharacterEncoding("UTF-8");
+												ResultSet rs2 = stmt.executeQuery("SELECT * FROM calisan where calisandepartmanid='" + detayDepartmanID + "' ;");
+												while (rs2.next()) {
+													out.println("<tr>");
+													out.println("<td>" + rs2.getString("calisanad") + "</td>");
+													out.println("<td>" + rs2.getString("calisansoyad") + "</td>");
+													out.println("<td>" + rs2.getString("calisaneposta") + "</td>");
+													out.println("<td>" + rs2.getString("calisantelefon") + "</td>");
+													out.println("<td>" + rs2.getString("calisanmaas") + "</td>");
+													out.println("<td>" + rs2.getString("calisanunvan") + "</td>");
 
+													ResultSet rs22 = stmt.executeQuery(
+													"SELECT * FROM calisan where calisanid=(SELECT departmanyoneticiid FROM departman where departmanid='"
+															+ detayDepartmanID + "');");
+													if (rs22.next()) {
+												out.println("<td>" + rs22.getString("calisanad") + " " + rs22.getString("calisansoyad") + "</td>");
+												rs22.close();
+													} else {
+												response.sendRedirect("index.jsp");
+													}
 
-										try {
-											//database bağlantısı için çağırdık
-											dbBaglanti connec = new dbBaglanti();
-											Statement stmt = connec.getCon().createStatement();
-											
-											ResultSet rs2 = stmt.executeQuery("SELECT * FROM calisan where calisandepartmanid='" + detayDepartmanID + "' ;");
-											while (rs2.next()) {
-												out.println("<tr>");
-												out.println("<td>" + rs2.getString("calisanad") + "</td>");
-												out.println("<td>" + rs2.getString("calisansoyad") + "</td>");
-												out.println("<td>" + rs2.getString("calisaneposta") + "</td>");
-												out.println("<td>" + rs2.getString("calisantelefon") + "</td>");
-												out.println("<td>" + rs2.getString("calisanmaas") + "</td>");
-												out.println("<td>" + rs2.getString("calisanunvan") + "</td>");
+													ResultSet rs23 = stmt.executeQuery(
+													"SELECT * FROM lokasyon where lokasyonid=(SELECT departmanlokasyonid FROM departman where departmanid='"
+															+ detayDepartmanID + "');");
+													if (rs23.next()) {
+												out.println("<td>" + rs23.getString("lokasyonadi") + "</td>");
+												rs23.close();
+													} else {
+												response.sendRedirect("index.jsp");
+													}
+
+													out.println("</tr>");
+
+												}
+												rs2.close();
+
+											} catch (Exception a) {
+												System.err.println("DB Bağlantı Hatası ! ");
+												System.err.println(a.getMessage());
+											}
+											%>
+
+										</tbody>
+									</table>
+								</div>
+								<!-- /.table-responsive -->
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<div class="col-md-12">
+						<div class="box box-info collapsed-box">
+							<div class="box-header with-border">
+								<h3 class="box-title">Departman Çalışanları Orginizasyon
+									Şeması</h3>
+
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool"
+										data-widget="collapse">
+										<i class="fa fa-plus"></i>
+									</button>
+								</div>
+							</div>
+							<!-- /.box-header -->
+							<div class="box-body" style="">
+								<div class="table-responsive">
+									<!-- organizasyon şeması -->
+									<div id="wrapper">
+										<div id="container">
+
+											<ol class="organizational-chart">
+											<li>
+											<%
+												request.setCharacterEncoding("UTF-8");
+
+											try {
+												dbBaglanti connec = new dbBaglanti();
+												Statement stmt = connec.getCon().createStatement();
 												
+												String yoneticiId="";
+												String yoneticiAd="";
+												String yoneticiSoyad="";
+												String yoneticiUnvan="";
 												
-												ResultSet rs22 = stmt.executeQuery("SELECT * FROM calisan where calisanid=(SELECT departmanyoneticiid FROM departman where departmanid='" + detayDepartmanID + "');");
+												ResultSet rs22 = stmt.executeQuery("SELECT * FROM calisan where calisanid=(SELECT departmanyoneticiid FROM departman where departmanid='"+ detayDepartmanID + "');");
 												if(rs22.next()){
-													out.println("<td>" + rs22.getString("calisanad") + " " + rs22.getString("calisansoyad") + "</td>");
+													yoneticiId=rs22.getString("calisanid");
+													yoneticiAd=rs22.getString("calisanad");
+													yoneticiSoyad=rs22.getString("calisansoyad");
+													yoneticiUnvan=rs22.getString("calisanunvan");
+													
+													out.println("<div>");
+													out.println("<h1 class='white-space:nowrap '>"+ yoneticiAd + " " + yoneticiSoyad +"</h1>");
+													out.println("</div>");
 													rs22.close();
 												}
-												else {
-													response.sendRedirect("index.jsp");
+												else{
+													response.sendRedirect("departmanListe.jsp");
 												}
-												
-												ResultSet rs23 = stmt.executeQuery("SELECT * FROM lokasyon where lokasyonid=(SELECT departmanlokasyonid FROM departman where departmanid='" + detayDepartmanID + "');");
-												if(rs23.next()){
-													out.println("<td>" + rs23.getString("lokasyonadi") + "</td>");
-													rs23.close();
+												out.println("<ol>");
+												ResultSet rs2121 = stmt.executeQuery("SELECT * FROM calisan where calisandepartmanid='" + detayDepartmanID + "' and calisanid!='"+ yoneticiId +"' ;");
+												while (rs2121.next()) {
+													out.println("<li><div>");
+													out.println("<h2>"+ rs2121.getString("calisanad") + " " + rs2121.getString("calisansoyad") +"</h2>");
+													out.println("</div></li>");
 												}
-												else {
-													response.sendRedirect("index.jsp");
-												}
-												
-												out.println("</tr>");
-												
+												rs2121.close();
+												out.println("</ol>");
+
+											} catch (Exception a) {
+												System.err.println("DB Bağlantı Hatası ! ");
+												System.err.println(a.getMessage());
 											}
-											rs2.close();
-
-										
-										} catch (Exception a) {
-											System.err.println("DB Bağlantı Hatası ! ");
-											System.err.println(a.getMessage());
-										}
-										%>
-
-									</tbody>
-								</table>
+											%>
+												</li>
+											</ol>
+										</div>
+									</div>
+									<!-- /organizasyon şeması -->
+								</div>
+								<!-- /.table-responsive -->
 							</div>
 							<!-- /.box-body -->
 						</div>

@@ -7,13 +7,12 @@
 <%@ page import="java.util.*"%>
 
 <%
-request.setCharacterEncoding("UTF-8");
+	request.setCharacterEncoding("UTF-8");
 
 String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 try {
 	//database bağlantısı için çağırdık
@@ -21,8 +20,9 @@ try {
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
+
 	session.setAttribute("kullaniciyaMesaj", "Listeden Geldi");
+
 
 	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
@@ -40,7 +40,7 @@ try {
 		response.sendRedirect("index.jsp");
 	}
 } catch (Exception a) {
-	System.err.println("DB Bağlantı Hatası ! ");
+	System.err.println("DB Bağlantı Hatası ! calisanListe");
 	System.err.println(a.getMessage());
 }
 %>
@@ -121,10 +121,9 @@ try {
 						<li class="dropdown user user-menu"><a href="#"
 							class="dropdown-toggle" data-toggle="dropdown"> <img
 								src="dist/img/user2-160x160.jpg" class="user-image"
-								alt="User Image"> <span class="hidden-xs">
-									<%
-										out.println(calisanAd + " " + calisanSoyad);
-									%>
+								alt="User Image"> <span class="hidden-xs"> <%
+ 	out.println(calisanAd + " " + calisanSoyad);
+ %>
 							</span>
 						</a>
 							<ul class="dropdown-menu">
@@ -170,10 +169,9 @@ try {
 								out.println(calisanAd + " " + calisanSoyad);
 							%>
 						</p>
-						<a href="#"><i class="text-success"></i>
-							<%
-								out.println(calisanUnvan);
-							%></a>
+						<a href="#"><i class="text-success"></i> <%
+ 	out.println(calisanUnvan);
+ %></a>
 					</div>
 				</div>
 				<!-- sidebar menu: : style can be found in sidebar.less -->
@@ -281,33 +279,38 @@ try {
 													request.setCharacterEncoding("UTF-8");
 
 												try {
-													//database bağlantısı için çağırdık
 													dbBaglanti connec = new dbBaglanti();
 													Statement stmt1 = connec.getCon().createStatement();
 
-
-													//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 													if (calisanId != null) {
 														ResultSet rs1 = stmt1.executeQuery("SELECT * FROM calisan");
 														while (rs1.next()) {
-															out.println("<tr role='row' class='odd'>");
-															out.println("<td class='sorting_1'>" + rs1.getString("calisanad") + "</td>");
-															out.println("<td>" + rs1.getString("calisansoyad") + "</td>");
-															out.println("<td>" + rs1.getString("calisantelefon") + "</td>");
-															
-															ResultSet rs2 = stmt1.executeQuery("SELECT * FROM departman where departmanid=(SELECT calisandepartmanid FROM calisan where calisanid='" + rs1.getString("calisanid") + "') ");
-															if(rs2.next()){
-																out.println("<td>" + rs2.getString("departmanadi") + "</td>");
-							                				}
-															rs2.close();
-															
-															out.println("<td><table><tbody><tr><td style='padding-left: 10px;'>");
-															out.println("<form role='form' action='calisanDuzenle.jsp' method='post' id='calisanDuzenleForm' name='calisanDuzenleForm'>");
-															out.println("<button class='btn btn-primary btn-sm' title='Düzenle' class='btn btn-app' name='duzenle' id='duzenle' type='submit' formmethod='post' formaction='calisanDuzenle.jsp' value='" + rs1.getInt("calisanid") + "'>");
-															out.println("<i class='fa fa-edit'></i></button></form></td><td></td><td style='padding-left: 10px;'>");
-															out.println("<form role='form' action='calisanSil.jsp' method='post' id='calisanSilForm' name='calisanSilForm'>");
-															out.println("<button title='Sil' class='btn btn-primary btn-sm' name='sil' id='sil' type='submit' formmethod='post' formaction='calisanSil.jsp' value='" + rs1.getString("calisanid") + "'>");
-															out.println("<i class='fa fa-close'></i></button></form></td></tr></tbody></table></td>");
+													out.println("<tr role='row' class='odd'>");
+													out.println("<td class='sorting_1'>" + rs1.getString("calisanad") + "</td>");
+													out.println("<td>" + rs1.getString("calisansoyad") + "</td>");
+													out.println("<td>" + rs1.getString("calisantelefon") + "</td>");
+
+													ResultSet rs2 = stmt1.executeQuery(
+															"SELECT * FROM departman where departmanid=(SELECT calisandepartmanid FROM calisan where calisanid='"
+																	+ rs1.getString("calisanid") + "') ");
+													if (rs2.next()) {
+														out.println("<td>" + rs2.getString("departmanadi") + "</td>");
+													}
+													rs2.close();
+
+													out.println("<td><table><tbody><tr><td style='padding-left: 10px;'>");
+													out.println(
+															"<form role='form' action='calisanDuzenle.jsp' method='post' id='calisanDuzenleForm' name='calisanDuzenleForm'>");
+													out.println(
+															"<button class='btn btn-primary btn-sm' title='Düzenle' class='btn btn-app' name='duzenle' id='duzenle' type='submit' formmethod='post' formaction='calisanDuzenle.jsp' value='"
+																	+ rs1.getInt("calisanid") + "'>");
+													out.println("<i class='fa fa-edit'></i></button></form></td><td></td><td style='padding-left: 10px;'>");
+													out.println(
+															"<form role='form' action='calisanSil.jsp' method='post' id='calisanSilForm' name='calisanSilForm'>");
+													out.println(
+															"<button title='Sil' class='btn btn-primary btn-sm' name='sil' id='sil' type='submit' formmethod='post' formaction='calisanSil.jsp' value='"
+																	+ rs1.getString("calisanid") + "'>");
+													out.println("<i class='fa fa-close'></i></button></form></td></tr></tbody></table></td>");
 														}
 														rs1.close();
 													} else {

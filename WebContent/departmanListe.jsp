@@ -13,7 +13,6 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 try {
 	//database bağlantısı için çağırdık
@@ -21,10 +20,9 @@ try {
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 
 	session.setAttribute("kullaniciyaMesaj", "Departman Listeden Geldi");
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
+
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -32,13 +30,7 @@ try {
 	calisanAd = rs.getString("calisanad");
 	calisanSoyad = rs.getString("calisansoyad");
 	calisanUnvan = rs.getString("calisanunvan");
-
-	//Eğer kişinin seviyesi 1 ise bu sayfaya giriş yapamasın diye kontrol ettirip yönlendiriyoruz
-	//if(kisi_seviye==1)
-	//{
-	//response.sendRedirect("./admin/mesajKutusu.jsp");
-	//}
-
+	
 	rs.close();
 		}
 	} else {

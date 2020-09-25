@@ -9,13 +9,12 @@
 <%@ page import="java.util.Date"%>
 
 <%
-	request.setCharacterEncoding("UTF-8");
+request.setCharacterEncoding("UTF-8");
 
 String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 String duzKisiID = "";
 
@@ -62,10 +61,8 @@ try {
 		
 	}
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
 	
 
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -411,9 +408,9 @@ try {
 													ResultSet rs11 = stmt.executeQuery("SELECT * FROM departman;");
 													while (rs11.next()) {
 												if (duzenlenecekKisi_departmanAdi.equals(rs11.getString("departmanadi"))) {
-													out.println("<option value='" + rs11.getString("departmanid") + "' selected='selected'>'" + rs11.getString("departmanadi") + "'</option>");
+													out.println("<option value='" + rs11.getString("departmanid") +".//."+rs11.getString("departmanadi") + "' selected='selected'>'" + rs11.getString("departmanadi") + "'</option>");
 												} else {
-													out.println("<option value='" + rs11.getString("departmanid") + "' >'" + rs11.getString("departmanadi") + "'</option>");
+													out.println("<option value='" + rs11.getString("departmanid") +".//."+rs11.getString("departmanadi") + "' >'" + rs11.getString("departmanadi") + "'</option>");
 												}
 													}
 													rs11.close();
@@ -461,11 +458,9 @@ try {
 											<%
 												request.setCharacterEncoding("UTF-8");
 											try {
-												//database bağlantısı için çağırdık
 												dbBaglanti connec = new dbBaglanti();
 												Statement stmt = connec.getCon().createStatement();
 
-												//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
 												if (calisanId != null) {
 													ResultSet rs22 = stmt.executeQuery("SELECT * FROM unvan where unvancalisanid='" + duzKisiID + "';");
 													while (rs22.next()) {
@@ -478,11 +473,9 @@ try {
 															out.println("<td>'" + rs22.getString("unvanbittarih") + "'</td>");
 														}
 														out.println("<td>'" + rs22.getString("unvanadi") + "'</td>");
+	
+														out.println("<td>'" + rs22.getString("unvandepartmanadi") + "'</td>");
 														
-														ResultSet rs222 = stmt.executeQuery("SELECT * FROM departman where departmanid='" + rs22.getString("unvandepartmanid") + "';");
-														if(rs222.next()){
-															out.println("<td>'" + rs222.getString("departmanadi") + "'</td>");
-														}
 														
 														out.println("</tr>");
 													}

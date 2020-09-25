@@ -13,18 +13,15 @@ String calisanId = "";
 String calisanAd = "";
 String calisanSoyad = "";
 String calisanUnvan = "";
-String departmanTabloYoneticiId = "";
 
 try {
-	//database bağlantısı için çağırdık
 	dbBaglanti connec = new dbBaglanti();
 	Statement stmt = connec.getCon().createStatement();
 
 	calisanId = session.getAttribute("calisanId").toString();
-	departmanTabloYoneticiId = session.getAttribute("departmanTabloYoneticiId").toString();
-
+	
 	session.setAttribute("kullaniciyaMesaj", "Lokasyon Listeden Geldi");
-	//Eğer kişi id si boş değilse ekranda gösterilmek için kişinin adı, soyadı gibi bilgileri çekiyoruz.
+
 	if (calisanId != null) {
 		ResultSet rs = stmt.executeQuery("SELECT * FROM calisan where calisanid='" + calisanId + "' ;");
 		if (rs.next()) {
@@ -275,7 +272,6 @@ try {
 													request.setCharacterEncoding("UTF-8");
 
 												try {
-													//database bağlantısı için çağırdık
 													dbBaglanti connec = new dbBaglanti();
 													Statement stmt = connec.getCon().createStatement();
 
